@@ -1,5 +1,7 @@
 import type { SalverMessage } from '../../lib/messages';
 
+const SALVER_DRAG_TYPE = 'application/x-salver';
+
 export default defineContentScript({
   matches: ['<all_urls>'],
   registration: 'runtime',
@@ -10,13 +12,14 @@ export default defineContentScript({
 
     let chip: HTMLDivElement | null = null;
     let activeFile: File | null = null;
-    let highlightCleanups: (() => void)[] = [];
+    let cleanups: (() => void)[] = [];
 
     function teardown() {
       chip?.remove();
       chip = null;
       activeFile = null;
-      clearHighlights();
+      cleanups.forEach((fn) => fn());
+      cleanups = [];
       document.removeEventListener('keydown', onKeyDown, true);
     }
 
@@ -38,21 +41,53 @@ export default defineContentScript({
       return inputs;
     }
 
-    function highlightInputs() {
+    // Highlight inputs and wire real drag-and-drop handlers on them.
+    // Because the chip and the inputs are in the same renderer, we handle
+    // the drop ourselves and assign the file via DataTransfer assignment.
+    function armInputs() {
       findFileInputs(document).forEach((input) => {
         const prev = { outline: input.style.outline, boxShadow: input.style.boxShadow };
         input.style.outline = '2px dashed #2563eb';
         input.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.12)';
-        highlightCleanups.push(() => {
+
+        const onDragOver = (e: DragEvent) => {
+          if (!e.dataTransfer?.types.includes(SALVER_DRAG_TYPE)) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+          input.style.outline = '2px solid #2563eb';
+          input.style.boxShadow = '0 0 0 6px rgba(37,99,235,0.22)';
+        };
+
+        const onDragLeave = () => {
+          input.style.outline = '2px dashed #2563eb';
+          input.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.12)';
+        };
+
+        const onDrop = (e: DragEvent) => {
+          if (!e.dataTransfer?.types.includes(SALVER_DRAG_TYPE)) return;
+          e.preventDefault();
+          if (!activeFile) return;
+          assignFileToInput(input, activeFile);
+          chrome.runtime.sendMessage({
+            type: 'ATTACH_RESULT',
+            ok: true,
+            inputsFound: 1,
+          } satisfies SalverMessage).catch(() => undefined);
+          teardown();
+        };
+
+        input.addEventListener('dragover', onDragOver);
+        input.addEventListener('dragleave', onDragLeave);
+        input.addEventListener('drop', onDrop);
+
+        cleanups.push(() => {
           input.style.outline = prev.outline;
           input.style.boxShadow = prev.boxShadow;
+          input.removeEventListener('dragover', onDragOver);
+          input.removeEventListener('dragleave', onDragLeave);
+          input.removeEventListener('drop', onDrop);
         });
       });
-    }
-
-    function clearHighlights() {
-      highlightCleanups.forEach((fn) => fn());
-      highlightCleanups = [];
     }
 
     function injectStyles() {
@@ -125,7 +160,6 @@ export default defineContentScript({
         letterSpacing: '0.02em',
       });
 
-      // Cancel button — position: absolute relative to the fixed chip
       const cancelBtn = document.createElement('button');
       cancelBtn.textContent = '✕';
       cancelBtn.setAttribute('draggable', 'false');
@@ -158,27 +192,22 @@ export default defineContentScript({
       el.addEventListener('dragstart', (e) => {
         if (!activeFile || !e.dataTransfer) return;
         e.dataTransfer.effectAllowed = 'copy';
-        e.dataTransfer.items.add(activeFile);
+        // Custom type lets our dragover/drop handlers identify this drag
+        e.dataTransfer.setData(SALVER_DRAG_TYPE, '1');
         el.style.opacity = '0.55';
         el.style.cursor = 'grabbing';
         el.style.animation = 'none';
-        highlightInputs();
+        armInputs();
       });
 
-      el.addEventListener('dragend', (e) => {
+      el.addEventListener('dragend', () => {
+        if (!chip) return; // already torn down by a successful drop
+        // Drop didn't land on a file input — reset chip, leave it for retry
         el.style.opacity = '1';
         el.style.cursor = 'grab';
         el.style.animation = 'salver-bob 2.4s ease-in-out infinite';
-        clearHighlights();
-
-        if (e.dataTransfer?.dropEffect !== 'none') {
-          chrome.runtime.sendMessage({
-            type: 'ATTACH_RESULT',
-            ok: true,
-            inputsFound: 1,
-          } satisfies SalverMessage).catch(() => undefined);
-          teardown();
-        }
+        cleanups.forEach((fn) => fn());
+        cleanups = [];
       });
 
       return el;
@@ -219,4 +248,12 @@ function base64ToFile(b64: string, name: string, type: string): File {
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return new File([bytes], name, { type });
+}
+
+function assignFileToInput(input: HTMLInputElement, file: File) {
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  input.files = dt.files;
+  input.dispatchEvent(new Event('input',  { bubbles: true }));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
 }
