@@ -31,8 +31,11 @@ export default function FileRow({ file }: Props) {
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
+  const isAttachingThis = attachState?.fileId === file.id;
+  const attachBusy = attachState !== null;
+
   const handleAttach = () => {
-    if (attachState) return;
+    if (attachBusy) return;
     startAttach(file.id, file.name, file.mimeType, 'click');
   };
 
@@ -62,9 +65,6 @@ export default function FileRow({ file }: Props) {
       },
     });
   };
-
-  const isAttachingThis = attachState?.fileId === file.id;
-  const attachBusy = attachState !== null;
 
   return (
     <div
