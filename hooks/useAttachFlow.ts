@@ -53,8 +53,8 @@ export function useAttachFlow() {
     return () => chrome.runtime.onMessage.removeListener(listener);
   }, [attachState, clearAttaching, showToast]);
 
-  const startAttach = async (fileId: string, fileName: string, mimeType: string, mode: 'drag' | 'click' = 'click') => {
-    setAttaching(fileId, fileName, mode);
+  const startAttach = async (fileId: string, fileName: string, mimeType: string) => {
+    setAttaching(fileId, fileName);
     try {
       const tabId = await getActiveTabId();
       if (tabId == null) {
@@ -80,7 +80,6 @@ export function useAttachFlow() {
         name: fileName,
         mimeType,
         dataB64,
-        mode,
       } satisfies SalverMessage);
     } catch (err) {
       clearAttaching();

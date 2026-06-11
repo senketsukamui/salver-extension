@@ -4,26 +4,22 @@ export default defineContentScript({
   matches: ['<all_urls>'],
   registration: 'runtime',
   main() {
-    // Guard: only initialise once per page
     const GUARD = '__salver_cs_init__';
     if ((window as unknown as Record<string, unknown>)[GUARD]) return;
     (window as unknown as Record<string, unknown>)[GUARD] = true;
 
-    let activePayload: { name: string; mimeType: string; dataB64: string; mode?: 'drag' | 'click' } | null = null;
-    let overlayRoot: HTMLDivElement | null = null;
-    let banner: HTMLDivElement | null = null;
+    let chip: HTMLDivElement | null = null;
+    let activeFile: File | null = null;
+    let highlightCleanups: (() => void)[] = [];
 
-    // ── Overlay teardown ────────────────────────────────────────────
     function teardown() {
-      overlayRoot?.remove();
-      banner?.remove();
-      overlayRoot = null;
-      banner = null;
-      activePayload = null;
+      chip?.remove();
+      chip = null;
+      activeFile = null;
+      clearHighlights();
       document.removeEventListener('keydown', onKeyDown, true);
     }
 
-    // ── Escape to cancel ────────────────────────────────────────────
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         teardown();
@@ -31,11 +27,10 @@ export default defineContentScript({
       }
     }
 
-    // ── Shadow DOM walk for file inputs ─────────────────────────────
     function findFileInputs(root: Document | ShadowRoot): HTMLInputElement[] {
       const inputs: HTMLInputElement[] = [];
       root.querySelectorAll<HTMLInputElement>('input[type=file]').forEach((el) => {
-        if (!el.closest('[data-salver-overlay]')) inputs.push(el);
+        if (!el.closest('[data-salver-chip]')) inputs.push(el);
       });
       root.querySelectorAll('*').forEach((el) => {
         if (el.shadowRoot) inputs.push(...findFileInputs(el.shadowRoot));
@@ -43,235 +38,172 @@ export default defineContentScript({
       return inputs;
     }
 
-    // ── Build badge over a single input ─────────────────────────────
-    function buildBadge(input: HTMLInputElement, fileName: string, isDrop: boolean): HTMLDivElement {
-      const rect = input.getBoundingClientRect();
-
-      const badge = document.createElement('div');
-      badge.setAttribute('data-salver-overlay', '1');
-
-      if (isDrop) {
-        // Drop-zone style: dashed animated border, pulsing glow
-        const keyframes = `
-          @keyframes salver-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); }
-            50%       { box-shadow: 0 0 0 6px rgba(37,99,235,0); }
-          }
-          @keyframes salver-dash {
-            to { stroke-dashoffset: -20; }
-          }
-        `;
-        if (!document.getElementById('salver-badge-keyframes')) {
-          const style = document.createElement('style');
-          style.id = 'salver-badge-keyframes';
-          style.textContent = keyframes;
-          document.head.appendChild(style);
-        }
-        Object.assign(badge.style, {
-          position: 'fixed',
-          top:    `${rect.top}px`,
-          left:   `${rect.left}px`,
-          width:  `${Math.max(rect.width, 80)}px`,
-          height: `${Math.max(rect.height, 40)}px`,
-          zIndex: '2147483647',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(37, 99, 235, 0.08)',
-          border: '2px dashed #2563eb',
-          borderRadius: '8px',
-          cursor: 'copy',
-          boxSizing: 'border-box',
-          fontSize: '12px',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          fontWeight: '700',
-          color: '#1e40af',
-          gap: '6px',
-          padding: '0 10px',
-          textAlign: 'center',
-          userSelect: 'none',
-          animation: 'salver-pulse 1.6s ease-in-out infinite',
-          transition: 'background 0.15s, border-color 0.15s',
-          letterSpacing: '0.02em',
+    function highlightInputs() {
+      findFileInputs(document).forEach((input) => {
+        const prev = { outline: input.style.outline, boxShadow: input.style.boxShadow };
+        input.style.outline = '2px dashed #2563eb';
+        input.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.12)';
+        highlightCleanups.push(() => {
+          input.style.outline = prev.outline;
+          input.style.boxShadow = prev.boxShadow;
         });
-
-        const label = document.createElement('span');
-        label.textContent = `⬇ Drop here`;
-        label.style.overflow = 'hidden';
-        label.style.textOverflow = 'ellipsis';
-        label.style.whiteSpace = 'nowrap';
-        badge.appendChild(label);
-
-        badge.addEventListener('mouseenter', () => {
-          badge.style.background = 'rgba(37, 99, 235, 0.18)';
-          badge.style.borderColor = '#1d4ed8';
-          badge.style.borderStyle = 'solid';
-        });
-        badge.addEventListener('mouseleave', () => {
-          badge.style.background = 'rgba(37, 99, 235, 0.08)';
-          badge.style.borderColor = '#2563eb';
-          badge.style.borderStyle = 'dashed';
-        });
-      } else {
-        Object.assign(badge.style, {
-          position: 'fixed',
-          top:    `${rect.top}px`,
-          left:   `${rect.left}px`,
-          width:  `${Math.max(rect.width, 80)}px`,
-          height: `${Math.max(rect.height, 32)}px`,
-          zIndex: '2147483647',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(37, 99, 235, 0.15)',
-          border: '2px solid #2563eb',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          boxSizing: 'border-box',
-          transition: 'background 0.15s',
-          fontSize: '12px',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          fontWeight: '600',
-          color: '#1e40af',
-          gap: '4px',
-          padding: '0 8px',
-          textAlign: 'center',
-          userSelect: 'none',
-        });
-
-        const label = document.createElement('span');
-        label.textContent = `📎 Attach "${fileName}"`;
-        label.style.overflow = 'hidden';
-        label.style.textOverflow = 'ellipsis';
-        label.style.whiteSpace = 'nowrap';
-        badge.appendChild(label);
-
-        badge.addEventListener('mouseenter', () => {
-          badge.style.background = 'rgba(37, 99, 235, 0.28)';
-        });
-        badge.addEventListener('mouseleave', () => {
-          badge.style.background = 'rgba(37, 99, 235, 0.15)';
-        });
-      }
-
-      badge.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!activePayload) return;
-
-        const { name, mimeType, dataB64 } = activePayload;
-        const file = base64ToFile(dataB64, name, mimeType);
-        assignFileToInput(input, file);
-        teardown();
-
-        chrome.runtime.sendMessage({
-          type: 'ATTACH_RESULT',
-          ok: true,
-          inputsFound: 1,
-        } satisfies SalverMessage).catch(() => undefined);
       });
-
-      return badge;
     }
 
-    // ── Build top-of-page banner ─────────────────────────────────────
-    function buildBanner(fileName: string, inputCount: number): HTMLDivElement {
-      const b = document.createElement('div');
-      Object.assign(b.style, {
+    function clearHighlights() {
+      highlightCleanups.forEach((fn) => fn());
+      highlightCleanups = [];
+    }
+
+    function injectStyles() {
+      if (document.getElementById('salver-chip-styles')) return;
+      const style = document.createElement('style');
+      style.id = 'salver-chip-styles';
+      style.textContent = `
+        @keyframes salver-bob {
+          0%, 100% { transform: translateY(0px) rotate(-1deg); }
+          50%       { transform: translateY(-5px) rotate(1deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    function buildChip(name: string): HTMLDivElement {
+      injectStyles();
+
+      const el = document.createElement('div');
+      el.setAttribute('data-salver-chip', '1');
+      el.draggable = true;
+
+      Object.assign(el.style, {
         position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        zIndex: '2147483646',
-        background: '#1e40af',
-        color: '#fff',
-        padding: '10px 16px',
+        top: '72px',
+        right: '24px',
+        zIndex: '2147483647',
+        background: '#fff',
+        border: '2px solid #2563eb',
+        borderRadius: '12px',
+        padding: '12px 16px 10px',
+        cursor: 'grab',
+        boxShadow: '0 8px 24px rgba(37,99,235,0.22), 0 2px 8px rgba(0,0,0,0.08)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        fontSize: '13px',
-        fontWeight: '500',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '12px',
+        gap: '5px',
+        minWidth: '120px',
+        maxWidth: '190px',
+        userSelect: 'none',
         boxSizing: 'border-box',
+        animation: 'salver-bob 2.4s ease-in-out infinite',
       });
 
-      const msg = document.createElement('span');
-      const isDrop = activePayload?.mode === 'drag';
-      msg.textContent = inputCount > 0
-        ? isDrop
-          ? `⬇ ${inputCount} drop zone${inputCount > 1 ? 's' : ''} ready — drop "${fileName}" on one. Press Esc to cancel.`
-          : `📎 ${inputCount} upload field${inputCount > 1 ? 's' : ''} found — click one to attach "${fileName}". Press Esc to cancel.`
-        : `No upload fields found on this page for "${fileName}". Press Esc to cancel.`;
-      b.appendChild(msg);
+      const iconEl = document.createElement('div');
+      iconEl.textContent = '📎';
+      iconEl.style.fontSize = '24px';
+      iconEl.style.lineHeight = '1';
 
-      const cancelBtn = document.createElement('button');
-      cancelBtn.textContent = 'Cancel';
-      Object.assign(cancelBtn.style, {
-        background: 'rgba(255,255,255,0.2)',
-        border: 'none',
-        borderRadius: '4px',
-        color: '#fff',
-        padding: '4px 10px',
+      const nameEl = document.createElement('div');
+      nameEl.textContent = name;
+      Object.assign(nameEl.style, {
         fontSize: '12px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        flexShrink: '0',
+        fontWeight: '700',
+        color: '#1e40af',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        width: '100%',
+        textAlign: 'center',
       });
-      cancelBtn.addEventListener('click', () => {
+
+      const hintEl = document.createElement('div');
+      hintEl.textContent = 'drag to a file field';
+      Object.assign(hintEl.style, {
+        fontSize: '10px',
+        fontWeight: '500',
+        color: '#93c5fd',
+        letterSpacing: '0.02em',
+      });
+
+      // Cancel button — position: absolute relative to the fixed chip
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = '✕';
+      cancelBtn.setAttribute('draggable', 'false');
+      Object.assign(cancelBtn.style, {
+        position: 'absolute',
+        top: '5px',
+        right: '7px',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '11px',
+        fontWeight: '700',
+        color: '#bfdbfe',
+        padding: '2px',
+        lineHeight: '1',
+      });
+      cancelBtn.addEventListener('mouseenter', () => { cancelBtn.style.color = '#2563eb'; });
+      cancelBtn.addEventListener('mouseleave', () => { cancelBtn.style.color = '#bfdbfe'; });
+      cancelBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         teardown();
         chrome.runtime.sendMessage({ type: 'ATTACH_CANCEL' }).catch(() => undefined);
       });
-      b.appendChild(cancelBtn);
 
-      return b;
+      el.appendChild(iconEl);
+      el.appendChild(nameEl);
+      el.appendChild(hintEl);
+      el.appendChild(cancelBtn);
+
+      el.addEventListener('dragstart', (e) => {
+        if (!activeFile || !e.dataTransfer) return;
+        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.items.add(activeFile);
+        el.style.opacity = '0.55';
+        el.style.cursor = 'grabbing';
+        el.style.animation = 'none';
+        highlightInputs();
+      });
+
+      el.addEventListener('dragend', (e) => {
+        el.style.opacity = '1';
+        el.style.cursor = 'grab';
+        el.style.animation = 'salver-bob 2.4s ease-in-out infinite';
+        clearHighlights();
+
+        if (e.dataTransfer?.dropEffect !== 'none') {
+          chrome.runtime.sendMessage({
+            type: 'ATTACH_RESULT',
+            ok: true,
+            inputsFound: 1,
+          } satisfies SalverMessage).catch(() => undefined);
+          teardown();
+        }
+      });
+
+      return el;
     }
 
-    // ── Enter pick-target mode ───────────────────────────────────────
-    function enterPickMode(payload: typeof activePayload & object) {
-      teardown(); // clear any previous state
-
-      activePayload = payload;
+    function enterChipMode(payload: { name: string; mimeType: string; dataB64: string }) {
+      teardown();
       document.addEventListener('keydown', onKeyDown, true);
+      activeFile = base64ToFile(payload.dataB64, payload.name, payload.mimeType);
+      chip = buildChip(payload.name);
+      document.body.appendChild(chip);
 
-      const inputs = findFileInputs(document);
-
-      banner = buildBanner(payload.name, inputs.length);
-      document.body.appendChild(banner);
-
-      if (inputs.length === 0) {
-        // No inputs found: banner stays with cancel button; auto-notify panel
+      if (findFileInputs(document).length === 0) {
         chrome.runtime.sendMessage({
           type: 'ATTACH_RESULT',
           ok: false,
           inputsFound: 0,
-          reason: 'No upload fields detected on this page.',
+          reason: 'No file fields found on this page.',
         } satisfies SalverMessage).catch(() => undefined);
-        return;
       }
-
-      overlayRoot = document.createElement('div');
-      overlayRoot.setAttribute('data-salver-overlay', '1');
-      Object.assign(overlayRoot.style, { position: 'fixed', inset: '0', zIndex: '0', pointerEvents: 'none' });
-      document.body.appendChild(overlayRoot);
-
-      const isDrop = payload.mode === 'drag';
-      inputs.forEach((input) => {
-        const badge = buildBadge(input, payload.name, isDrop);
-        document.body.appendChild(badge);
-        // Keep a reference under overlayRoot so teardown removes everything
-        overlayRoot!.appendChild(badge);
-      });
-      // Move overlayRoot children back to body so fixed positioning works
-      Array.from(overlayRoot.children).forEach((child) => {
-        document.body.appendChild(child);
-      });
     }
 
-    // ── Message listener ─────────────────────────────────────────────
     chrome.runtime.onMessage.addListener((message: SalverMessage, _sender, sendResponse) => {
       if (message.type === 'ATTACH_START') {
-        enterPickMode(message);
+        enterChipMode(message);
         sendResponse({ ok: true });
       } else if (message.type === 'ATTACH_CANCEL') {
         teardown();
@@ -282,19 +214,9 @@ export default defineContentScript({
   },
 });
 
-// ── Helpers ───────────────────────────────────────────────────────────
-
 function base64ToFile(b64: string, name: string, type: string): File {
   const binary = atob(b64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return new File([bytes], name, { type });
-}
-
-function assignFileToInput(input: HTMLInputElement, file: File) {
-  const dt = new DataTransfer();
-  dt.items.add(file);
-  input.files = dt.files;
-  input.dispatchEvent(new Event('input',  { bubbles: true }));
-  input.dispatchEvent(new Event('change', { bubbles: true }));
 }

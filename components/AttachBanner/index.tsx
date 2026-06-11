@@ -11,10 +11,7 @@ export default function AttachBanner() {
       <div className={styles.left}>
         <span className={styles.spinner} />
         <span className={styles.label}>
-          {attachState.mode === 'drag'
-            ? <>Drop <strong>{attachState.fileName}</strong> on a highlighted field</>
-            : <>Attaching <strong>{attachState.fileName}</strong> — click a file input on the page</>
-          }
+          Drag <strong>{attachState.fileName}</strong> from the chip on the page to a file field
         </span>
       </div>
       <button className={styles.cancelBtn} onClick={cancelAttach}>

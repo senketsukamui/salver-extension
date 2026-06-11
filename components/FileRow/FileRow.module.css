@@ -5,35 +5,11 @@
   padding: 10px 14px;
   border-bottom: 1px solid var(--border-light);
   background: var(--bg);
-  transition: background 0.1s, opacity 0.1s;
-  cursor: grab;
+  transition: background 0.1s;
 }
 
 .row:hover {
   background: var(--surface);
-}
-
-.row:active {
-  cursor: grabbing;
-}
-
-.rowDragging {
-  opacity: 0.5;
-}
-
-.dragHandle {
-  font-size: 13px;
-  color: var(--text-muted);
-  opacity: 0;
-  cursor: grab;
-  flex-shrink: 0;
-  line-height: 1;
-  transition: opacity 0.1s;
-  user-select: none;
-}
-
-.row:hover .dragHandle {
-  opacity: 1;
 }
 
 .row:last-child {
