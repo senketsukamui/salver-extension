@@ -1,0 +1,107 @@
+.wrap {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.wrap::-webkit-scrollbar {
+  height: 0;
+}
+
+.chips {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  width: max-content;
+}
+
+.chipWrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: var(--radius-md);
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: all 0.1s;
+}
+
+.chip:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.chip.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.chipMenuWrap {
+  position: relative;
+}
+
+.chipMenuTrigger {
+  width: 18px;
+  height: 22px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+  transition: color 0.1s, background 0.1s;
+}
+
+.chipMenuTrigger:hover {
+  color: var(--text-secondary);
+  background: var(--surface-hover);
+}
+
+.chipMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  min-width: 110px;
+  z-index: var(--z-dropdown);
+  overflow: hidden;
+}
+
+.chipMenuItem {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--text);
+  transition: background 0.1s;
+}
+
+.chipMenuItem:hover {
+  background: var(--surface-hover);
+}
+
+.chipMenuItem.danger {
+  color: var(--danger);
+}
+
+.chipMenuItem.danger:hover {
+  background: var(--danger-light);
+}
