@@ -29,6 +29,7 @@ export interface FolderDeleteModalState {
 export interface AttachState {
   fileId: string;
   fileName: string;
+  mode: 'drag' | 'click';
 }
 
 interface UIStore {
@@ -65,7 +66,7 @@ interface UIStore {
   dismissFolderDeleteModal: () => void;
 
   setHeaderMenuOpen: (open: boolean) => void;
-  setAttaching: (fileId: string, fileName: string) => void;
+  setAttaching: (fileId: string, fileName: string, mode: 'drag' | 'click') => void;
   clearAttaching: () => void;
 }
 
@@ -125,6 +126,6 @@ export const useUIStore = create<UIStore>((set) => ({
 
   setHeaderMenuOpen: (open) => set({ headerMenuOpen: open }),
 
-  setAttaching: (fileId, fileName) => set({ attachState: { fileId, fileName } }),
+  setAttaching: (fileId, fileName, mode) => set({ attachState: { fileId, fileName, mode } }),
   clearAttaching: () => set({ attachState: null }),
 }));

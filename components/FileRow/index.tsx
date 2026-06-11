@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { db, type FileMeta } from '../../lib/db';
 import { useUIStore } from '../../stores/useUIStore';
 import { useAttachFlow } from '../../hooks/useAttachFlow';
@@ -17,6 +17,7 @@ export default function FileRow({ file }: Props) {
   const { startAttach } = useAttachFlow();
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,9 +32,19 @@ export default function FileRow({ file }: Props) {
   }, [menuOpen]);
 
   const handleAttach = () => {
-    if (attachState) return; // another attach in progress
-    startAttach(file.id, file.name, file.mimeType);
+    if (attachState) return;
+    startAttach(file.id, file.name, file.mimeType, 'click');
   };
+
+  const handleDragStart = useCallback((e: React.DragEvent) => {
+    if (attachBusy) { e.preventDefault(); return; }
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', file.name);
+    setDragging(true);
+    startAttach(file.id, file.name, file.mimeType, 'drag');
+  }, [attachBusy, file, startAttach]);
+
+  const handleDragEnd = useCallback(() => setDragging(false), []);
 
   const handleDelete = () => {
     setMenuOpen(false);
@@ -56,7 +67,13 @@ export default function FileRow({ file }: Props) {
   const attachBusy = attachState !== null;
 
   return (
-    <div className={styles.row}>
+    <div
+      className={`${styles.row} ${dragging ? styles.rowDragging : ''}`}
+      draggable={!attachBusy}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <span className={styles.dragHandle} title="Drag to attach">⠿</span>
       <div className={styles.content}>
         <div className={styles.titleRow}>
           <span className={styles.icon}>{fileIcon(file.mimeType)}</span>

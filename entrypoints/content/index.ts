@@ -9,7 +9,7 @@ export default defineContentScript({
     if ((window as unknown as Record<string, unknown>)[GUARD]) return;
     (window as unknown as Record<string, unknown>)[GUARD] = true;
 
-    let activePayload: { name: string; mimeType: string; dataB64: string } | null = null;
+    let activePayload: { name: string; mimeType: string; dataB64: string; mode?: 'drag' | 'click' } | null = null;
     let overlayRoot: HTMLDivElement | null = null;
     let banner: HTMLDivElement | null = null;
 
@@ -44,50 +44,115 @@ export default defineContentScript({
     }
 
     // ── Build badge over a single input ─────────────────────────────
-    function buildBadge(input: HTMLInputElement, fileName: string): HTMLDivElement {
+    function buildBadge(input: HTMLInputElement, fileName: string, isDrop: boolean): HTMLDivElement {
       const rect = input.getBoundingClientRect();
 
       const badge = document.createElement('div');
       badge.setAttribute('data-salver-overlay', '1');
-      Object.assign(badge.style, {
-        position: 'fixed',
-        top:    `${rect.top}px`,
-        left:   `${rect.left}px`,
-        width:  `${Math.max(rect.width, 80)}px`,
-        height: `${Math.max(rect.height, 32)}px`,
-        zIndex: '2147483647',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'rgba(37, 99, 235, 0.15)',
-        border: '2px solid #2563eb',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        boxSizing: 'border-box',
-        transition: 'background 0.15s',
-        fontSize: '12px',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        fontWeight: '600',
-        color: '#1e40af',
-        gap: '4px',
-        padding: '0 8px',
-        textAlign: 'center',
-        userSelect: 'none',
-      });
 
-      const label = document.createElement('span');
-      label.textContent = `📎 Attach "${fileName}"`;
-      label.style.overflow = 'hidden';
-      label.style.textOverflow = 'ellipsis';
-      label.style.whiteSpace = 'nowrap';
-      badge.appendChild(label);
+      if (isDrop) {
+        // Drop-zone style: dashed animated border, pulsing glow
+        const keyframes = `
+          @keyframes salver-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); }
+            50%       { box-shadow: 0 0 0 6px rgba(37,99,235,0); }
+          }
+          @keyframes salver-dash {
+            to { stroke-dashoffset: -20; }
+          }
+        `;
+        if (!document.getElementById('salver-badge-keyframes')) {
+          const style = document.createElement('style');
+          style.id = 'salver-badge-keyframes';
+          style.textContent = keyframes;
+          document.head.appendChild(style);
+        }
+        Object.assign(badge.style, {
+          position: 'fixed',
+          top:    `${rect.top}px`,
+          left:   `${rect.left}px`,
+          width:  `${Math.max(rect.width, 80)}px`,
+          height: `${Math.max(rect.height, 40)}px`,
+          zIndex: '2147483647',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(37, 99, 235, 0.08)',
+          border: '2px dashed #2563eb',
+          borderRadius: '8px',
+          cursor: 'copy',
+          boxSizing: 'border-box',
+          fontSize: '12px',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontWeight: '700',
+          color: '#1e40af',
+          gap: '6px',
+          padding: '0 10px',
+          textAlign: 'center',
+          userSelect: 'none',
+          animation: 'salver-pulse 1.6s ease-in-out infinite',
+          transition: 'background 0.15s, border-color 0.15s',
+          letterSpacing: '0.02em',
+        });
 
-      badge.addEventListener('mouseenter', () => {
-        badge.style.background = 'rgba(37, 99, 235, 0.28)';
-      });
-      badge.addEventListener('mouseleave', () => {
-        badge.style.background = 'rgba(37, 99, 235, 0.15)';
-      });
+        const label = document.createElement('span');
+        label.textContent = `⬇ Drop here`;
+        label.style.overflow = 'hidden';
+        label.style.textOverflow = 'ellipsis';
+        label.style.whiteSpace = 'nowrap';
+        badge.appendChild(label);
+
+        badge.addEventListener('mouseenter', () => {
+          badge.style.background = 'rgba(37, 99, 235, 0.18)';
+          badge.style.borderColor = '#1d4ed8';
+          badge.style.borderStyle = 'solid';
+        });
+        badge.addEventListener('mouseleave', () => {
+          badge.style.background = 'rgba(37, 99, 235, 0.08)';
+          badge.style.borderColor = '#2563eb';
+          badge.style.borderStyle = 'dashed';
+        });
+      } else {
+        Object.assign(badge.style, {
+          position: 'fixed',
+          top:    `${rect.top}px`,
+          left:   `${rect.left}px`,
+          width:  `${Math.max(rect.width, 80)}px`,
+          height: `${Math.max(rect.height, 32)}px`,
+          zIndex: '2147483647',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(37, 99, 235, 0.15)',
+          border: '2px solid #2563eb',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          boxSizing: 'border-box',
+          transition: 'background 0.15s',
+          fontSize: '12px',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontWeight: '600',
+          color: '#1e40af',
+          gap: '4px',
+          padding: '0 8px',
+          textAlign: 'center',
+          userSelect: 'none',
+        });
+
+        const label = document.createElement('span');
+        label.textContent = `📎 Attach "${fileName}"`;
+        label.style.overflow = 'hidden';
+        label.style.textOverflow = 'ellipsis';
+        label.style.whiteSpace = 'nowrap';
+        badge.appendChild(label);
+
+        badge.addEventListener('mouseenter', () => {
+          badge.style.background = 'rgba(37, 99, 235, 0.28)';
+        });
+        badge.addEventListener('mouseleave', () => {
+          badge.style.background = 'rgba(37, 99, 235, 0.15)';
+        });
+      }
 
       badge.addEventListener('click', (e) => {
         e.preventDefault();
@@ -132,8 +197,11 @@ export default defineContentScript({
       });
 
       const msg = document.createElement('span');
+      const isDrop = activePayload?.mode === 'drag';
       msg.textContent = inputCount > 0
-        ? `📎 ${inputCount} upload field${inputCount > 1 ? 's' : ''} found — click one to attach "${fileName}". Press Esc to cancel.`
+        ? isDrop
+          ? `⬇ ${inputCount} drop zone${inputCount > 1 ? 's' : ''} ready — drop "${fileName}" on one. Press Esc to cancel.`
+          : `📎 ${inputCount} upload field${inputCount > 1 ? 's' : ''} found — click one to attach "${fileName}". Press Esc to cancel.`
         : `No upload fields found on this page for "${fileName}". Press Esc to cancel.`;
       b.appendChild(msg);
 
@@ -187,8 +255,9 @@ export default defineContentScript({
       Object.assign(overlayRoot.style, { position: 'fixed', inset: '0', zIndex: '0', pointerEvents: 'none' });
       document.body.appendChild(overlayRoot);
 
+      const isDrop = payload.mode === 'drag';
       inputs.forEach((input) => {
-        const badge = buildBadge(input, payload.name);
+        const badge = buildBadge(input, payload.name, isDrop);
         document.body.appendChild(badge);
         // Keep a reference under overlayRoot so teardown removes everything
         overlayRoot!.appendChild(badge);
