@@ -4,7 +4,7 @@
 Salver
 
 ## Short description (≤132 chars)
-A side-panel shelf for snippets, links, and files. Copy text, attach files to upload fields — without leaving the page.
+Born from the pain of copy-pasting CVs and cover letters all day. A side-panel shelf for snippets, links, and files.
 
 ## Category
 Productivity
@@ -16,31 +16,39 @@ English (United States)
 
 ## Detailed description
 
-Salver lives in Chrome's side panel and gives you instant access to the content you use every day — cover letters, bios, links, and files — without hunting through folders or switching tabs.
+I built Salver out of personal frustration.
+
+Every time I applied for a job I found myself doing the same thing: opening a notes app, hunting for my cover letter, copying it, switching back to the form, pasting it — then doing the same for my portfolio link, my bio, and finally digging through Downloads for the right version of my CV. Over and over, for every application, on every site.
+
+No tool I found solved all three parts at once: text snippets, links, and actual files — all accessible from the same place, without leaving the tab. So I built one.
+
+Salver lives in Chrome's side panel. It stays open while you work. Everything you've saved is one click away.
+
+---
 
 **Snippets & links**
-Save any text or URL and copy it to your clipboard in one click. Organise items into folders. Search across everything instantly.
+Save cover letters, bios, answers to common application questions, profile URLs — anything you retype constantly. Click Copy and it's on your clipboard instantly. Organise into folders. Search across everything in real time.
 
 **Templates**
-Add `{{variable}}` placeholders to a snippet. When you copy it, Salver prompts for each value and resolves them before hitting your clipboard — the original is never changed.
+Add {{variable}} placeholders to any snippet. When you copy it, Salver asks for the values and resolves them before writing to your clipboard. The original is never touched — reuse it as many times as you need.
 
 **Files**
-Store PDFs, images, and documents up to 10 MB. Files are split into metadata and binary tables so the list view stays fast even with large attachments.
+Store your CV, portfolio PDF, or any document up to 10 MB. Files live in your browser — no uploads, no cloud.
 
-**Click-to-attach**
-Click Attach next to any stored file. A draggable chip appears on the page — drag it to any file upload field and release. Salver assigns the file directly to the input, dispatching the events frameworks expect. Works on virtually any site.
+**Drag-to-attach**
+Click Attach next to a stored file. A chip appears on the page — drag it to any file upload field and release. The file is filled in directly, as if you'd picked it from your disk. Works on virtually any site.
 
 **Folders & search**
-Group items into flat folders. A debounced search bar filters by title and content across snippets and files in real time.
+Group items however makes sense to you. A live search bar filters by title and content across snippets and files.
 
 **Export / Import**
-Back up everything to a single JSON file (files included as base64). Import restores with a dry-run summary before committing any changes.
+Back up everything to a single JSON file — files included. Import shows you exactly what will change before committing.
 
 **Context menu**
-Select text on any page, right-click, and choose "Add selection to Salver" to save it as a new snippet instantly.
+Select text anywhere, right-click, and save it to Salver in one step.
 
-**100% local**
-No accounts, no servers, no analytics. All data lives in your browser's IndexedDB. Nothing ever leaves your device.
+**100% local — no accounts, no servers**
+Everything is stored in your browser's IndexedDB. Nothing is ever sent anywhere.
 
 ---
 
