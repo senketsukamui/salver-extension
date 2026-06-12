@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salver — Privacy Policy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #fff;
+      padding: 48px 24px 80px;
+    }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+    .meta { font-size: 14px; color: #6b7280; margin-bottom: 40px; }
+    h2 { font-size: 18px; font-weight: 600; margin: 36px 0 10px; }
+    p { margin-bottom: 14px; color: #374151; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+    th { text-align: left; padding: 10px 12px; background: #f3f4f6; font-weight: 600; border: 1px solid #e5e7eb; }
+    td { padding: 10px 12px; border: 1px solid #e5e7eb; color: #374151; vertical-align: top; }
+    td:first-child { white-space: nowrap; font-family: monospace; font-size: 13px; color: #1d4ed8; }
+    .summary-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 36px;
+      font-size: 15px;
+      color: #1e40af;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Privacy Policy</h1>
+    <p class="meta">Last updated: 2026-06-12</p>
+
+    <div class="summary-box">
+      Salver stores all data locally on your device. It does not collect, transmit, or share any personal information.
+    </div>
+
+    <h2>Data storage</h2>
+    <p>All snippets, links, files, and settings you save in Salver are stored exclusively in your browser's IndexedDB (via the <code>unlimitedStorage</code> permission). Nothing leaves your device.</p>
+
+    <h2>Permissions</h2>
+    <table>
+      <tr>
+        <th>Permission</th>
+        <th>Why it is needed</th>
+      </tr>
+      <tr>
+        <td>sidePanel</td>
+        <td>Display the Salver panel inside the browser window.</td>
+      </tr>
+      <tr>
+        <td>storage / unlimitedStorage</td>
+        <td>Store your snippets and files in IndexedDB without quota limits.</td>
+      </tr>
+      <tr>
+        <td>activeTab</td>
+        <td>Identify the current tab when you click Attach.</td>
+      </tr>
+      <tr>
+        <td>scripting</td>
+        <td>Inject the file-attach chip into the active page on demand — only when you explicitly click Attach for a specific file. The script is never injected automatically.</td>
+      </tr>
+      <tr>
+        <td>contextMenus</td>
+        <td>Add the "Add selection to Salver" right-click option.</td>
+      </tr>
+      <tr>
+        <td>host_permissions (&lt;all_urls&gt;)</td>
+        <td>Allow the on-demand content script to run on whichever page you choose to use Attach on. Without this, the injection fails when the side panel has been open longer than the activeTab grace period. The script never runs automatically on any page.</td>
+      </tr>
+    </table>
+
+    <h2>No analytics, no network</h2>
+    <p>Salver makes no network requests of any kind. There are no third-party SDKs, no analytics, no crash reporting, and no telemetry.</p>
+
+    <h2>Contact</h2>
+    <p>For questions or concerns, open an issue at the <a href="https://github.com/senketsukamui/salver-extension">project repository</a>.</p>
+  </div>
+</body>
+</html>
