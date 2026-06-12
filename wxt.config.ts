@@ -4,7 +4,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   manifest: {
     name: 'Salver',
-    description: 'A persistent side-panel shelf for snippets, links, and files. Attach files directly to web upload fields.',
+    description: 'Save text snippets, links, and files, then instantly reuse them in any web form — no more copy-pasting the same CV or cover letter.',
     permissions: [
       'sidePanel',
       'storage',
