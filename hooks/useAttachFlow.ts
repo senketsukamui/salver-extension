@@ -84,7 +84,7 @@ export function useAttachFlow() {
     } catch (err) {
       clearAttaching();
       showToast('Could not inject into this page.', 'error');
-      console.error('[Salver] attach error', err);
+      console.error('[shelf] attach error', err);
     }
   };
 
