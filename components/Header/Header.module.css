@@ -8,11 +8,11 @@
   flex-shrink: 0;
 }
 
-.title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.3px;
+.logo {
+  width: 26px;
+  height: 26px;
+  color: var(--accent);
+  flex-shrink: 0;
 }
 
 .actions {

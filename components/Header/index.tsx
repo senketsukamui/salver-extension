@@ -48,7 +48,13 @@ export default function Header() {
   return (
     <>
       <header className={styles.header}>
-        <span className={styles.title}>Salver</span>
+        <svg className={styles.logo} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="5"  width="7" height="17" rx="2" fill="currentColor"/>
+          <rect x="2" y="5"  width="7" height="4"  rx="2" fill="currentColor" opacity="0.45"/>
+          <rect x="13" y="10" width="7" height="12" rx="2" fill="currentColor" opacity="0.75"/>
+          <rect x="24" y="14" width="6" height="8"  rx="2" fill="currentColor" opacity="0.5"/>
+          <rect x="1"  y="22" width="30" height="3" rx="1.5" fill="currentColor"/>
+        </svg>
         <div className={styles.actions}>
           <button className={styles.addBtn} onClick={() => setView('add')}>
             ＋ Add
