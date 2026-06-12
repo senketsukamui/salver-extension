@@ -1,0 +1,174 @@
+{
+  "format": "salver-export",
+  "version": 1,
+  "exportedAt": "2026-06-12T10:00:00.000Z",
+  "folders": [
+    {
+      "id": "f1",
+      "name": "Job Applications",
+      "parentId": null,
+      "sortOrder": 0,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000
+    },
+    {
+      "id": "f2",
+      "name": "Personal",
+      "parentId": null,
+      "sortOrder": 1,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000
+    }
+  ],
+  "snippets": [
+    {
+      "id": "909f1ea4-396d-4fa0-a718-aac15f5e68f7",
+      "folderId": "f1",
+      "type": "text",
+      "title": "Cover Letter \u2014 General",
+      "content": "Hi,\n\nI'm a software engineer with 5 years of experience building web products. I'm excited about this opportunity and believe my background in full-stack development makes me a strong fit.\n\nI'd love to chat \u2014 please find my CV attached.\n\nBest,\nGleb",
+      "tags": [],
+      "sortOrder": 0,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    },
+    {
+      "id": "fe845c92-546c-420b-b5ad-29a1b5797aa1",
+      "folderId": "f1",
+      "type": "text",
+      "title": "Cover Letter \u2014 {{company}}",
+      "content": "Hi {{hiring_manager}},\n\nI came across the role at {{company}} and it immediately caught my attention. Your work on {{product}} is exactly the kind of problem I want to be working on.\n\nI've attached my CV \u2014 happy to jump on a call whenever works for you.\n\nBest,\nGleb",
+      "tags": [],
+      "sortOrder": 1,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    },
+    {
+      "id": "519e6bd1-0f1a-471b-a79a-0b8ab5d0fea8",
+      "folderId": "f1",
+      "type": "text",
+      "title": "Short Bio",
+      "content": "Software engineer with 5 years of experience in TypeScript, React, and Node.js. I build tools that get out of the way.",
+      "tags": [],
+      "sortOrder": 2,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    },
+    {
+      "id": "455b3598-4076-4d50-905c-674d3741945c",
+      "folderId": "f1",
+      "type": "text",
+      "title": "Availability",
+      "content": "Available from July 2026. Open to remote or hybrid (Kyiv / EU).",
+      "tags": [],
+      "sortOrder": 3,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    },
+    {
+      "id": "4706c807-af72-4442-afcc-0696054963c1",
+      "folderId": "f1",
+      "type": "link",
+      "title": "LinkedIn",
+      "content": "https://linkedin.com/in/yourprofile",
+      "tags": [],
+      "sortOrder": 4,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    },
+    {
+      "id": "c0f185df-69a9-4193-acb9-f204d16f3cd4",
+      "folderId": "f1",
+      "type": "link",
+      "title": "GitHub",
+      "content": "https://github.com/senketsukamui",
+      "tags": [],
+      "sortOrder": 5,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    },
+    {
+      "id": "da325c61-de18-4252-8b41-04b6fefd957c",
+      "folderId": "f2",
+      "type": "link",
+      "title": "Portfolio",
+      "content": "https://yourportfolio.dev",
+      "tags": [],
+      "sortOrder": 6,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    },
+    {
+      "id": "345ea7fb-dea3-4f6c-8d7d-886ce5a47598",
+      "folderId": "f2",
+      "type": "text",
+      "title": "Salary expectation",
+      "content": "$4,500\u20135,500/mo gross, open to discuss.",
+      "tags": [],
+      "sortOrder": 7,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0
+    }
+  ],
+  "files": [
+    {
+      "id": "30bfaaed-252c-499a-940d-50e98a2232e5",
+      "folderId": "f1",
+      "name": "cv-2026.pdf",
+      "mimeType": "application/pdf",
+      "size": 316,
+      "tags": [],
+      "sortOrder": 0,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0,
+      "dataB64": "JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL01lZGlhQm94WzAgMCA2MTIgNzkyXS9QYXJlbnQgMiAwIFIvUmVzb3VyY2VzPDw+Pj4+ZW5kb2JqCnhyZWYKMCA0CjAwMDAwMDAwMDAgNjU1MzUgZg0KMDAwMDAwMDAwOSAwMDAwMCBuDQowMDAwMDAwMDU4IDAwMDAwIG4NCjAwMDAwMDAxMTUgMDAwMDAgbg0KdHJhaWxlcjw8L1NpemUgNC9Sb290IDEgMCBSPj4Kc3RhcnR4cmVmCjE5NwolJUVPRg=="
+    },
+    {
+      "id": "fe57bbac-e9d2-4471-818c-0bd1bf78f159",
+      "folderId": "f1",
+      "name": "cv-senior-engineer.pdf",
+      "mimeType": "application/pdf",
+      "size": 316,
+      "tags": [],
+      "sortOrder": 1,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0,
+      "dataB64": "JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL01lZGlhQm94WzAgMCA2MTIgNzkyXS9QYXJlbnQgMiAwIFIvUmVzb3VyY2VzPDw+Pj4+ZW5kb2JqCnhyZWYKMCA0CjAwMDAwMDAwMDAgNjU1MzUgZg0KMDAwMDAwMDAwOSAwMDAwMCBuDQowMDAwMDAwMDU4IDAwMDAwIG4NCjAwMDAwMDAxMTUgMDAwMDAgbg0KdHJhaWxlcjw8L1NpemUgNC9Sb290IDEgMCBSPj4Kc3RhcnR4cmVmCjE5NwolJUVPRg=="
+    },
+    {
+      "id": "dad11332-c29d-4f4c-bac9-fdd7f15586d7",
+      "folderId": "f1",
+      "name": "cv-one-page.pdf",
+      "mimeType": "application/pdf",
+      "size": 316,
+      "tags": [],
+      "sortOrder": 2,
+      "createdAt": 1749600000000,
+      "updatedAt": 1749600000000,
+      "lastUsedAt": null,
+      "useCount": 0,
+      "dataB64": "JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL01lZGlhQm94WzAgMCA2MTIgNzkyXS9QYXJlbnQgMiAwIFIvUmVzb3VyY2VzPDw+Pj4+ZW5kb2JqCnhyZWYKMCA0CjAwMDAwMDAwMDAgNjU1MzUgZg0KMDAwMDAwMDAwOSAwMDAwMCBuDQowMDAwMDAwMDU4IDAwMDAwIG4NCjAwMDAwMDAxMTUgMDAwMDAgbg0KdHJhaWxlcjw8L1NpemUgNC9Sb290IDEgMCBSPj4Kc3RhcnR4cmVmCjE5NwolJUVPRg=="
+    }
+  ],
+  "settings": {}
+}
